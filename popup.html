@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot</title>
+  <style>
+    :root {
+      --primary-color: #2563eb;
+      --secondary-color: #3b82f6;
+      --background-color: #f8fafc;
+      --chat-bg: #ffffff;
+      --text-color: #1e293b;
+      --border-color: #e2e8f0;
+      --hover-color: #dbeafe;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      margin: 0;
+      padding: 15px;
+      width: 350px;
+      background: var(--background-color);
+      color: var(--text-color);
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .settings-btn {
+      background: none;
+      border: none;
+      color: #64748b;
+      cursor: pointer;
+      padding: 5px;
+      border-radius: 5px;
+      transition: background-color 0.2s;
+    }
+
+    .settings-btn:hover {
+      background-color: var(--hover-color);
+    }
+
+    #settings-panel {
+      display: none;
+      margin-bottom: 10px;
+      padding: 12px;
+      background: var(--chat-bg);
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    #settings-panel.visible {
+      display: block;
+    }
+
+    #api-key-input {
+      width: 100%;
+      padding: 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .button-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .action-btn {
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+      font-size: 13px;
+      flex: 1;
+    }
+
+    .action-btn:hover {
+      background: var(--secondary-color);
+    }
+
+    .quick-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .quick-action-btn {
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      background: var(--chat-bg);
+      color: var(--text-color);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 13px;
+      text-align: left;
+    }
+
+    .quick-action-btn:hover {
+      background: var(--hover-color);
+      border-color: var(--secondary-color);
+    }
+
+    #chat {
+      height: 300px;
+      overflow-y: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      padding: 12px;
+      background: var(--chat-bg);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    #chat div {
+      margin-bottom: 8px;
+      line-height: 1.5;
+    }
+
+    #chat div b {
+      color: var(--primary-color);
+    }
+
+    .input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    #user-input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    #user-input:focus {
+      outline: none;
+      border-color: var(--secondary-color);
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.1);
+    }
+
+    #send-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      background: var(--primary-color);
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    #send-btn:hover {
+      background: var(--secondary-color);
+    }
+
+    .message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      max-width: 85%;
+      word-wrap: break-word;
+    }
+
+    .user-message {
+      background: var(--hover-color);
+      margin-left: auto;
+      border-radius: 12px 12px 0 12px;
+    }
+
+    .ai-message {
+      background: var(--background-color);
+      margin-right: auto;
+      border-radius: 12px 12px 12px 0;
+    }
+
+    .collapsible-context {
+      max-width: 100%;
+      background: var(--background-color);
+      border: 1px solid var(--border-color);
+    }
+
+    .collapsible-context .full-context {
+      display: none;
+      margin-top: 8px;
+      white-space: pre-wrap;
+      font-size: 0.9em;
+      color: var(--text-color);
+    }
+
+    .collapsible-context.expanded .full-context {
+      display: block;
+    }
+
+    .collapsible-context .context-preview {
+      color: var(--text-color);
+    }
+
+    .toggle-context {
+      background: none;
+      border: none;
+      color: var(--primary-color);
+      cursor: pointer;
+      padding: 2px 5px;
+      font-size: 0.8em;
+      margin-left: 5px;
+    }
+
+    .toggle-context:hover {
+      text-decoration: underline;
+    }
+
+    .collapsible-context.expanded .toggle-context::after {
+      content: 'Show less';
+    }
+
+    .collapsible-context:not(.expanded) .toggle-context::after {
+      content: 'Show more';
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h2 style="margin: 0; font-size: 18px;">AI Chat Assistant</h2>
+      <button class="settings-btn" id="settings-toggle">⚙️</button>
+    </div>
+
+    <div id="settings-panel">
+      <input type="text" id="api-key-input" placeholder="Enter Hugging Face API Token">
+      <button class="action-btn" id="save-token">Save Token</button>
+      <p style="font-size: 11px; margin-top: 5px;">
+        Get your free token at <a href="#" id="hf-link">huggingface.co/settings/tokens</a>
+      </p>
+    </div>
+
+    <div class="button-row">
+      <button class="action-btn" id="extract-btn">Extract Content</button>
+      <button class="action-btn" id="clear-btn">Clear History</button>
+    </div>
+
+    <div class="quick-actions">
+      <button class="quick-action-btn" data-question="What does this page talk about?">📄 What does this page talk about?</button>
+      <button class="quick-action-btn" data-question="Can you summarize the main points of this page?">📝 Summarize the contents</button>
+      <button class="quick-action-btn" data-question="What are the key data points and facts from this page?">📊 Extract key data points</button>
+    </div>
+
+    <div id="chat">Chatbot ready. Extract page content to begin.</div>
+
+    <div class="input-group">
+      <input type="text" id="user-input" placeholder="Type your message..." />
+      <button id="send-btn">Send</button>
+    </div>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html> 
